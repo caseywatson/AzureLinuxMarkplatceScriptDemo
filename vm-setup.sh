@@ -38,7 +38,11 @@ read -p "Press [Enter] to continue..."
 # Authenticate using interactive sign-in...
 # See [https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli#sign-in-interactively] for more information...
 
-az login
+if [[ -z $(az ad signed-in-user show --query objectId 2>/dev/null) ]]; then
+    az login
+else
+    echo "Already logged in. Proceeding to next demo..."
+fi
 
 echo "Demo | Show current user AAD metadata..."
 read -p "Press [Enter] to continue..."
