@@ -1,27 +1,64 @@
-#! /bin/bash -e
+#!/bin/bash -e
 
-echo "Installing pre-requisites..."
+usage() {
+    echo "Usage: $0 [-i] [-p]";
+    echo "[-i]   Skips the Azure IMDS query. Useful when not running this script on an Azure VM.";
+    echo "[-p]   Skips pre-requisite installation.";
+}
 
-sudo apt-get install curl
-sudo apt-get install jq
+while getopts "pi" opt; do
+    case $opt in
+        p)
+            skip_prereq_install="TRUE" # Saves time if you know pre-reqs are already installed...
+        ;;
+        i)
+            skip_imds="TRUE" # Skips IMDS query when we're not running on Azure...
+        ;;
+        \?)
+            usage
+            exit 1
+        ;;
+    esac
+done
 
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+if [[ -z $skip_prereq_install ]]; then
+    echo "Installing demo pre-requisites..."
 
-echo "Pre-requisites installed."
+    sudo apt-get install curl
+    sudo apt-get install jq 
+
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash # Install the Azure CLI...
+
+    echo "Demo pre-requisites installed."
+fi
+
+echo "Demo | Login to Azure..."
 read -p "Press [Enter] to continue..."
 
-echo "Demo 1 | Login to Azure..."
+# Authenticate using interactive sign-in...
+# See [https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli#sign-in-interactively] for more information...
 
 az login
 
+echo "Demo | Show current user AAD metadata..."
 read -p "Press [Enter] to continue..."
-echo "Showing AAD user metadata..."
+
+# See [https://docs.microsoft.com/en-us/cli/azure/ad/signed-in-user?view=azure-cli-latest] for more information...
 
 az ad signed-in-user show
 
-read -p "Press [Enter] to continue..."
-echo "Demo 2 | Accessing instance metadata..."
+if [[ -z $skip_imds ]]; then
+    echo "Demo 3 | Accessing instance metadata..."
+    read -p "Press [Enter] to continue..."
 
-curl -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2020-09-01"
+    # Access current Azure instance metadata...
+    # See [https://docs.microsoft.com/en-us/azure/virtual-machines/linux/instance-metadata-service?tabs=linux] for more information...
 
+    curl -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2020-09-01"
+fi
+
+echo "Demo | List all resource groups..."
 read -p "Press [Enter] to continue..."
+
+az group list --query '[].{Name:name, Location:location}'
+
