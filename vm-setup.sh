@@ -34,6 +34,7 @@ fi
 
 echo "Demo | Login to Azure..."
 read -p "Press [Enter] to continue..."
+echo
 
 # Authenticate using interactive sign-in...
 # See [https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli#sign-in-interactively] for more information...
@@ -44,25 +45,32 @@ else
     echo "Already logged in. Proceeding to next demo..."
 fi
 
+echo
 echo "Demo | Show current user AAD metadata..."
 read -p "Press [Enter] to continue..."
+echo
 
 # See [https://docs.microsoft.com/en-us/cli/azure/ad/signed-in-user?view=azure-cli-latest] for more information...
 
 az ad signed-in-user show
 
 if [[ -z $skip_imds ]]; then
+    echo
     echo "Demo 3 | Accessing instance metadata..."
     read -p "Press [Enter] to continue..."
+    echo
 
     # Access current Azure instance metadata...
     # See [https://docs.microsoft.com/en-us/azure/virtual-machines/linux/instance-metadata-service?tabs=linux] for more information...
 
     curl -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2020-09-01"
+    echo
 fi
 
 echo "Demo | List all resource groups..."
 read -p "Press [Enter] to continue..."
+echo
 
 az group list --query '[].{Name:name, Location:location}'
+echo
 
