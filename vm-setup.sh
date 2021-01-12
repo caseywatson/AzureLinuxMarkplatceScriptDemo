@@ -67,6 +67,7 @@ if [[ -z $skip_imds ]]; then
     echo
 fi
 
+echo
 echo "Demo | List all resource groups..."
 read -p "Press [Enter] to continue..."
 echo
